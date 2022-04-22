@@ -360,7 +360,7 @@ df_G <- Gtest(file = df_filt,
 ```
 
 ###Plots for four BSA methods,the plot can be found 
-![Example figure1](https://github.com/?/BSA_analysis_plots.png "Example figure1")
+![Example figure1](https://github.com/smilejeen/PNGseqR/BSA_analysis_plots.jpg "Example figure1")
 ``` r			  
 #Plot
 
@@ -399,7 +399,7 @@ plot_BSA(file = df_G$total.result,
 ```
 
 ###Plots for DEG analysis and GO analysis,the plot can be found 
-![Example figure2](https://github.com/?/expression_analysis_plots.png "Example figure2")
+![Example figure2](https://github.com/smilejeen/PNGseqR/expression_analysis_plots.jpg "Example figure2")
 ``` r
 #Differential expression analysis
 
