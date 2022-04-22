@@ -293,7 +293,7 @@ Function | Parameter | Description
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
-# Use Example:
+## Use Example:
 
 This is a basic example which shows you how to import and analyze
 NGS-BSA data.
