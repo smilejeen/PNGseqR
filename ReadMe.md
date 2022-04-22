@@ -18,7 +18,7 @@ PNGseqR was developed in R version `3.5.0` and depends on a number of packages f
       - [DEG_reads.example](#DEG-reads)
       - [GO_Term.example](#GO-term)
   - [Function arguments](#function-arguments)
-  - [Use Example](#use-examples)
+  - [Use Examples](#use-examples)
       - [Figure 1](#figure-1)
       - [Figure 2](#figure-2)
 
@@ -293,7 +293,7 @@ Function | Parameter | Description
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
-## Use Example:
+## Use Examples:
 
 This is a basic example which shows you how to import and analyze
 NGS-BSA data.
