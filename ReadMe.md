@@ -361,7 +361,7 @@ df_G <- Gtest(file = df_filt,
 
 ###Plots for four BSA methods,the plot can be found 
 #### Figure 1
-![](https://github.com/smilejeen/PNGseqR/BSA_analysis_plots.jpg)<!-- -->
+![](https://github.com/smilejeen/PNGseqR/blob/main/BSA_analysis_plots.jpg)
 Figure 1 Candidate region identified by different algorithms in PNGseqR for maize small kernel mutant. Plots produced by the *plot_BSA()* function with a 5 Mb sliding window: (A-D).The scatter plots exported from the BSA results, the used algorithms are Δ(SNP-index), empirical bayes, ED, and G-test. (E-H) the tricube-smoothed values on the genome. Red line threshold shows the region containing SNPs whose tricube-smoothed values are higher than 99.5% of all values, and blue line threshold shows the SNPs whose P-values are lower than 0.001 based on permutation test.
  
 ``` r			  
@@ -403,7 +403,7 @@ plot_BSA(file = df_G$total.result,
 
 ###Plots for DEG analysis and GO analysis,the plot can be found 
 #### Figure 2
-![](https://github.com/smilejeen/PNGseqR/expression_analysis_plots.jpg)<!-- -->
+![](https://github.com/smilejeen/PNGseqR/blob/main/expression_analysis_plots.jpg)
 Figure 2 Differential expression analysis and GO analysis for maize small kernel mutant. (A) The volcano plot shows the DEGs for maize small kernel mutant, the analysis was performed by using *DEG_analysis()*. (B) The histogram shows the result of GO analysis for maize small kernel mutant, the analysis was performed by using *GO_analysis()*. Top 20 terms of each mode (BP, CC, MF) are showed in this plot. (C)  A part of directed acyclic plot plotted by using the “MF” mode of *GO_analysis()*. (D)  Bubble plot shows the result of GO analysis, the GO terms are same as (B). 
 
 
