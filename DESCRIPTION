@@ -1,0 +1,31 @@
+Package: PNGseqR
+Type: Package
+Title: Rapid Candidate Gene Selection and Visualization Through Multiple bulk segregate analysis with next-generation sequencing
+Version: 0.0.0.9
+Authors@R: person(given ="Sihan", family = "Zhen", role = c("aut", "cre"), email = "smilejeen@163.com")
+Description: PNGSeqR provides a convenient tool to map genetic loci controlling both quantitative and qualitative trait by performing BSA analysis, which integrates multiple algorithms and methods to indicate the magnitude of genome wide signals and to define the candidate regions, and prioritizes the causal genes through DEG and GO analysis. It takes single nucleotide polymorphism (SNP) markers from Next-generation sequencing (NGS) data in Variant Call Format (VCF) format as the input file, and provides four published BSA algorithms to rapidly define the candidate region through permutation test and fractile quantile. Users can choose the appropriate methods according to their data and experimental design. In addition, it also supports performing DEG analysis and GO analysis in order to prioritize the target gene. Once the analysis is completed, the plots can conveniently be exported.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Imports:
+    vcfR,
+    dplyr,
+    tidyr,
+    readr,
+    locfit,
+    DESeq2,
+    ggplot2,
+    topGO,
+    rtracklayer,
+    grDevices,
+    graphics,
+    methods,
+    stats,
+    utils
+Depends: R (>= 3.5.0)
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+Suggests: 
+    rmarkdown,
+    knitr
+VignetteBuilder: knitr
