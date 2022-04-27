@@ -27,8 +27,8 @@ GO_analysis <- function(GO_term,
                         plot = TRUE){
   cat("Let's begin \n")
   cat("So the number of differential expression gene is ",length(DEG_id),"\n")
-  names(go_term) <- c("id","GO_terms")
-  go_split <- split(go_term$GO_terms, go_term$id)
+  names(GO_term) <- c("id","GO_terms")
+  go_split <- split(GO_term$GO_terms, GO_term$id)
   cat("So the number of Species gene is ",length(go_split),"\n")
   re <- NULL
   id <- names(go_split)
@@ -44,10 +44,10 @@ GO_analysis <- function(GO_term,
   cat("Prepare GO matrix","\n")
   genenames <- names(gene2go)
   genelist <- factor(as.integer(genenames %in% DEG_id)) 
-  # 这里会生成一个factor，有两个levels：0和1，其中1表示感兴趣的基因。
+  # A factor will be generated here, with two levels: 0 and 1, where 1 represents the gene of interest.
   names(genelist) <- genenames
   if(type!="all"){
-  GOdata <- new("topGOdata", ontology=type, allGenes = genelist,annot = annFUN.gene2GO, gene2GO = gene2go)
+  GOdata <- new("topGOdata", ontology=type, allGenes = genelist,annot = topGO::annFUN.gene2GO, gene2GO = gene2go)
   cat("GO analysing!","\n")
   node <-  topGO::runTest(GOdata, algorithm = algorithm, statistic = statistic)
   if(statistic=="ks"){
@@ -69,13 +69,13 @@ GO_analysis <- function(GO_term,
   dev.off()
   cat("Plotting Bubble graph \n")
   pdf(paste0(type,"_bubble.pdf"),height=6,width=8)
-  print(ggplot2::ggplot(result,aes(Gene.ratio,Term))+ggplot2::geom_point(aes(size = Significant,color = Pvalue))+
+  print(ggplot2::ggplot(result,ggplot2::aes(Gene.ratio,Term))+ggplot2::geom_point(ggplot2::aes(size = Significant,color = Pvalue))+
           ggplot2::scale_color_gradient(low = "blue",high = "red")+ggplot2::theme_bw()+
           ggplot2::labs(color=expression(-log[10](Pvalue)),size="Count",x="Gene Ratio",y="GO Terms"))
   dev.off()
   cat("Plotting histogram \n")
   pdf(paste0(type,"_histogram.pdf"),height=6,width=8)
-  print(ggplot2::ggplot(result,aes(y=Significant,x=Term,fill=Category)) + ggplot2::geom_bar(stat="identity",position = "dodge") + ggplot2::facet_grid(Category~.,scales = "free",space = "free") + ggplot2::coord_flip() + ggplot2::theme_bw()+ ggplot2::labs(x="Terms",y="Significant Count"))
+  print(ggplot2::ggplot(result,ggplot2::aes(y=Significant,x=Term,fill=Category)) + ggplot2::geom_bar(stat="identity",position = "dodge") + ggplot2::facet_grid(Category~.,scales = "free",space = "free") + ggplot2::coord_flip() + ggplot2::theme_bw()+ ggplot2::labs(x="Terms",y="Significant Count"))
   dev.off()
   }
   cat("Finish! \n")
@@ -84,7 +84,7 @@ GO_analysis <- function(GO_term,
     type <- c("BP","MF","CC")
     result <- data.frame()
     for (i in type) {
-      GOdata <- new("topGOdata", ontology=i, allGenes = genelist,annot = annFUN.gene2GO, gene2GO = gene2go)
+      GOdata <- new("topGOdata", ontology=i, allGenes = genelist,annot = topGO::annFUN.gene2GO, gene2GO = gene2go)
       cat("GO analysing for ",i," !","\n")
       node <-  topGO::runTest(GOdata, algorithm = algorithm, statistic = statistic)
       if(statistic=="ks"){
@@ -111,13 +111,13 @@ GO_analysis <- function(GO_term,
     if (plot){
       cat("Plotting Bubble graph \n")
       pdf("all_bubble.pdf",height=6,width=8)
-      print(ggplot2::ggplot(result,aes(Gene.ratio,Term))+ggplot2::geom_point(aes(size = Significant,color = Pvalue))+
+      print(ggplot2::ggplot(result,ggplot2::aes(Gene.ratio,Term))+ggplot2::geom_point(ggplot2::aes(size = Significant,color = Pvalue))+
               ggplot2::scale_color_gradient(low = "blue",high = "red")+ggplot2::theme_bw()+
               ggplot2::labs(color=expression(-log[10](Pvalue)),size="Count",x="Gene Ratio",y="GO Terms"))
       dev.off()
       cat("Plotting histogram \n")
       pdf("all_histogram.pdf",height=6,width=8)
-      print(ggplot2::ggplot(result,aes(y=Significant,x=Term,fill=Category)) + ggplot2::geom_bar(stat="identity",position = "dodge") + ggplot2::facet_grid(Category~.,scales = "free",space = "free") + ggplot2::coord_flip() + ggplot2::theme_bw() + ggplot2::labs(x="Terms",y="Significant Count"))
+      print(ggplot2::ggplot(result,ggplot2::aes(y=Significant,x=Term,fill=Category)) + ggplot2::geom_bar(stat="identity",position = "dodge") + ggplot2::facet_grid(Category~.,scales = "free",space = "free") + ggplot2::coord_flip() + ggplot2::theme_bw() + ggplot2::labs(x="Terms",y="Significant Count"))
       dev.off()
     }
     cat("Finish! \n")

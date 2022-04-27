@@ -96,7 +96,8 @@ The formatting parameters of required and all optional input files are summarize
   `BULK2`|The value cprresponding to FORMAT in BULK2 sample, i.e. "B73_WT". Data type: character 
 
  ```
-> data(vcf_data.example)
+> library(vcfR) 
+> vcf_data.example <- read.vcfR("snp.vcf",verbose = TRUE) # snp.vcf is a example dataset
 > head(vcf_data.example)
 
 		CHROM POS      ID REF ALT QUAL      FILTER	FORMAT           B73_MU                           B73_WT                        
@@ -207,7 +208,8 @@ The formatting parameters of required and all optional input files are summarize
 `gene_name`|optional column.indicate the function of gene. Data type: character
 
 ```
-> data("gtf_data.example")
+> library(rtracklayer)
+> gtf_data.example <- import("zma.v4.example.gtf")
 > head(gtf_data.example)
 GRanges object with 6 ranges and 15 metadata columns:
       seqnames      ranges strand |   source        type     score     phase        gene_id  gene_source   gene_biotype       transcript_id transcript_source transcript_biotype  exon_number                exon_id          protein_id protein_version   gene_name
@@ -259,10 +261,10 @@ Function | Parameter | Description
 ``|Windowsize|A numeric value indicates the window size (in base pairs) containing SNPs subjected to calculating Euclidean distance
 ``|threshold|From 0 to 1, default value is “0.95”. A numeric threshold value to extract candidate region by fractile quantile
 ``|pval|A numeric threshold value, default value is “0.05”
-`Gtest()`| |The function to perform BSA analysis with G-test algorithm	
+`Gprime()`| |The function to perform BSA analysis with G-test algorithm	
 ``|file|The data frame exported by BSA_filter()
 ``|Windowsize|A numeric value indicates the window size (in base pairs) containing SNPs subjected to calculating G statistic
-``|threshold|From 0 to 1, default value is “0.99”. A numeric threshold value to extract candidate region by fractile quantile
+``|threshold|From 0 to 1, default value is “0.95”. A numeric threshold value to extract candidate region by fractile quantile
 ``|pval|A numeric threshold value. Default value is “0.05”
 `plot_BSA()`| |The function to output BSA analysis result into scatter and line plots
 ``|file|The data frame exported by the BSA analysis functions 
@@ -303,13 +305,16 @@ NGS-BSA data.
 #load the package
 library("PNGseqR")
 
-#Set sample and file names
-fl <- data(vcf_data.example)
+#Set file and sample names
+fl <- "snp.vcf"
 MutBulk <- "B73_MU"
 WtBulk <- "B73_WT"
 
+
+
 #Choose which chromosomes will be included in the analysis (i.e. exclude smaller contigs)
 seqname <- c(1:10)
+
 
 #Import SNP data from file
 df <- vcf2table(
@@ -319,44 +324,57 @@ df <- vcf2table(
         chromlist = seqname
      )
 
+head(df) # The genotype data frame convert from vcf file
+
 #Filter SNPs based on some criteria
-df_filt <-BSA_filter(file=df,
-                     Bulk.DP=6,
-					 Bulk2.Ref=3,
-					 Bulk2.Alt=3,
-					 min.GQ=99,
-					 verbose = TRUE)
+data_filt <- BSA_filter(file=df,
+                        Bulk.DP=6,
+                        Bulk2.Ref=3,
+                        Bulk2.Alt=3,
+                        Depth.diff=100,
+                        min.GQ=99,
+                        verbose = TRUE)
+
+head(data_filt) # The remaining SNPs after filter
+					 
 ```
 
 ###Four algorithms for BSA analysis, for more detailed instructions please read the supplement materials
-``` r					 
-#BSA abalysis
-##Run Delta SNP analysis
-df_deltaSNP <- deltaSNP(file = df_filt,
+``` r		
+			 
+#BSA analysis
+
+#Run Delta SNP analysis
+df_deltaSNP <- DeltaSNP(file = data_filt,
                         Windowsize = 5e6,
                         threshold = 0.995,
                         pval = 0.001)
 
-##Run Baysian analysis
-df_bayes <- Bayes(file = df_filt,
-                  Bulksize = 30,
-                  Genomelength = 2338,
-                  Windowsize = 5e6,
-                  threshold = 0.995,
-                  pval = 0.001)
+head(df_deltaSNP$total.result) # The total analysis result 
+head(df_deltaSNP$sigthreshold) # The SNPs selected based on the fractile quntile threshold
+head(df_deltaSNP$sigpval.result) #The SNPs selected based on the permutation test threshold
 
-##Run Euclidean Distance analysis
-df_ED <- ED(file = df_filt,
-                power = 4,
-                Windowsize = 5e6,
-                threshold = 0.995,
-                pval = 0.001)
+#Run Baysian analysis
+df_bayes <- Bayesian(file = data_filt,
+                     Bulksize = 30,     #The number of samples in the mixing bulks is 30
+                     Genomelength = 2338,
+                     Windowsize = 5e6,
+                     threshold = 0.995,
+                     pval = 0.001)
 
-##Run G-test analysis
-df_G <- Gtest(file = df_filt,
-              Windowsize = 5e6,
-              threshold = 0.995,
-              pval = 0.001)
+#Run Euclidean Distance analysis
+df_ED <- ED(file = data_filt,
+            power = 4,
+            Windowsize = 5e6,
+            threshold = 0.995,
+            pval = 0.001)
+
+#Run G-test analysis
+df_G <- Gprime(file = data_filt,
+               Windowsize = 5e6,
+               threshold = 0.995,
+               pval = 0.001)
+			   
 ```
 
 ###Plots for four BSA methods,the plot can be found 
@@ -370,7 +388,7 @@ Figure 1 Candidate region identified by different algorithms in PNGseqR for maiz
 ##deltaSNP
 plot_BSA(file = df_deltaSNP$total.result,
          chromlist = seqname,
-         type = "deltaSNP",
+         type = "DeltaSNP",
          file.name = "DS",
          threshold = 0.995,
               pval = 0.001)
@@ -378,11 +396,11 @@ plot_BSA(file = df_deltaSNP$total.result,
 ##Baysian
 plot_BSA(file = df_bayes$total.result,
          chromlist = seqname,
-         type = "Bayes",
-         file.name = "Bayes",
+         type = "Bayesian",
+         file.name = "Bayesian",
          threshold = 0.995,
          pval = 0.001)
-		 
+
 ##Euclidean Distance
 plot_BSA(file = df_ED$total.result,
          chromlist = seqname,
@@ -390,12 +408,12 @@ plot_BSA(file = df_ED$total.result,
          file.name = "ED",
          threshold = 0.995,
          pval = 0.001)
-		 
-##G-test
+
+##Gprime
 plot_BSA(file = df_G$total.result,
          chromlist = seqname,
-         type = "Gtest",
-         file.name = "Gtest",
+         type = "Gprime",
+         file.name = "Gprime",
          threshold = 0.995,
          pval = 0.001)
 		 
@@ -411,24 +429,25 @@ Figure 2 Differential expression analysis and GO analysis for maize small kernel
 #Differential expression analysis
 
 ## Set data and parameters
-readscount <- data(DEG_reads.example)
+DEG_reads <- DEG_reads.example
 rep <- 2
 pvalue <- 0.05
-log2fold <- 0.5
-res <- DEG_analysis(file = readscount,
+log2fold <- 1.5
+res <- DEG_analysis(file = DEG_reads,
                     rep.num = rep,
                     sig.level = pvalue,
                     exp.fold = log2fold,
-                    plot = T)
-					
-##Extract the siginificant differential expression genes
-write.table(res$DEG_sig,"diff.exp.sig.txt",sep = "\t",quote = F,row.names = F)
+                    file.name = "test",
+                    plot = TRUE)
+
+head(res$DEG_total) # The differential expression of all genes
+head(res$DEG_sig) # The significant differential expression genes based on the threshold
 
 #GO analysis
 ## Set data and parameters
 sigDEG <- res$DEG_sig
 geneid <- sigDEG$id
-go_term <- data(GO_Term.example)
+go_term <- GO_Term.example
 mode <- "all"
 algorithm <- "classic"
 statistic <- "fisher"
@@ -441,26 +460,28 @@ GO_result <- GO_analysis(GO_term = go_term,
                          statistic = statistic,
                          top_num = num,
                          plot = TRUE)
+
+head(GO_result) # Get the top significant gene ontology analysis result
+
 write.table(GO_result,"GO_terms.txt",sep = "\t",quote = F,row.names = F)
 
 #result annotation
-gtf <- "zma.GrameneR58AGPv4.gtf"
+## Set data and parameters
+gtf <- "zma.v4.example.gtf"
 chr <- 8
 start <- 79943
 end <- 3418075
+BSA_position <- data.frame(chr,start,end) # Construct the candidate region of data frame format
+
 sigDEG <- res$DEG_sig
-BSA_position <- data.frame(chr,start,end) #The region is setted based on the analysis result of BSA analysis
+
                            
 BSA_gene <- result_anno(BSA_data = BSA_position,
                         gtf_data = gtf,
                         DEG_data = sigDEG)
 
-BSA_gene$genes_in_region
-BSA_gene$DEGgenes_in_region
+BSA_gene$genes_in_region # The genes fall in the candidate region
+BSA_gene$DEGgenes_in_region # The differential expression genes fall in the candidate region
 
-##Extract the genes fall in the candidate region
-write.table(BSA_gene$genes_in_region,"genes_in_region.txt",sep = "\t",quote = F,row.names = F)
-##Extract the differential expression genes fall in the candidate region
-write.table(BSA_gene$DEGgenes_in_region,"DEgenes_in_region.txt",sep = "\t",quote = F,row.names = F)
 ```
 

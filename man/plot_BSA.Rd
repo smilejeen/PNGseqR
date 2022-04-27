@@ -7,7 +7,7 @@
 plot_BSA(
   file,
   chromlist = NULL,
-  type = c("deltaSNP", "Bayesian", "ED", "Gtest"),
+  type = c("DeltaSNP", "Bayesian", "ED", "Gprime"),
   file.name,
   threshold = NULL,
   pval = NULL

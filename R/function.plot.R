@@ -14,10 +14,10 @@
 #' @importFrom graphics abline axis par points title
 #' 
  
-plot_BSA <- function(file,chromlist=NULL,type=c("deltaSNP","Bayesian","ED","Gtest"),file.name,threshold=NULL,pval=NULL){
+plot_BSA <- function(file,chromlist=NULL,type=c("DeltaSNP","Bayesian","ED","Gprime"),file.name,threshold=NULL,pval=NULL){
   if(!is.null(file)){
       if(is.character(file.name)==TRUE){
-        if((type=="deltaSNP")|(type=="Bayesian")|(type=="ED")|(type=="Gtest")){
+        if((type=="DeltaSNP")|(type=="Bayesian")|(type=="ED")|(type=="Gprime")){
           cat("Let's Begin \n")
           chr.length <- c()
           chroms <- as.character(unique(data_filt$CHROM))
@@ -109,14 +109,14 @@ plot_BSA <- function(file,chromlist=NULL,type=c("deltaSNP","Bayesian","ED","Gtes
                      ylim=c(0,max(y0)+1),xaxs="i",yaxs="i",font=2)
                 title(main = paste0("chromosome ",i),cex.main=2)
                 if (!is.null(threshold)){
-                  threshold.value <- sort(as.numeric(file$tricubeG))[1+(length(file$tricubeG)-1)*threshold]
-                  sig.result <- file[file$tricubeG>=threshold.value,]
-                  h.v <- sig.result[which.min(sig.result$tricubeG),14]
+                  threshold.value <- sort(as.numeric(file$tricubePL))[1+(length(file$tricubePL)-1)*threshold]
+                  sig.result <- file[file$tricubePL>=threshold.value,]
+                  h.v <- sig.result[which.min(sig.result$tricubePL),16]
                   abline(h=h.v,lwd=3.5,col="red")
                 }
                 if (!is.null(pval)){
                   p.result <- file[file$pvalue<=pval,]
-                  p.v <- p.result[which.min(p.result$tricubeG),14]
+                  p.v <- p.result[which.min(p.result$tricubePL),16]
                   abline(h=p.v,lwd=3.5,col="blue")
                 }
                 dev.off()
@@ -194,8 +194,8 @@ plot_BSA <- function(file,chromlist=NULL,type=c("deltaSNP","Bayesian","ED","Gtes
             }
               cat("ED method line Chart of selected chromosomes finished \n")
             }
-          } else if (type == "Gtest"){
-            cat("Plotting Gtest method Scatter diagram \n")
+          } else if (type == "Gprime"){
+            cat("Plotting Gprime method Scatter diagram \n")
             png(paste0(file.name,".point.png"),height=480,width=1080) # 命名
             y <- mht.data[,13]
             x <- mht.data[,2]
@@ -211,14 +211,14 @@ plot_BSA <- function(file,chromlist=NULL,type=c("deltaSNP","Bayesian","ED","Gtes
             axis(side = 1,at=pos.chr,labels=chroms,cex.axis=2,family="serif",font=2)
             par(family="serif",font.lab=2,font.axis=2)
             dev.off()
-            cat("Gtest method Scatter diagram finished \n")
+            cat("Gprime method Scatter diagram finished \n")
             png(paste0(file.name,".smooth.png"),height=480,width=1080) # 命名
             y0 <- mht.data[,14]
             x0 <- mht.data[,2]
             y0.max <- max(y0,na.rm=TRUE)
             color.array <- rep(c("black"), len = length(chroms))
-            cat("Plotting Gtest method line Chart \n")
-            plot(x0,y0,type="l",cex=1,cex.axis=2,cex.lab=1.5,xlab="Chromosomes region",ylab="Tricube smooth of G-test",xlim=c(0,pos[length(pos)]),
+            cat("Plotting Gprime method line Chart \n")
+            plot(x0,y0,type="l",cex=1,cex.axis=2,cex.lab=1.5,xlab="Chromosomes region",ylab="Tricube smooth of G-value",xlim=c(0,pos[length(pos)]),
                  ylim=c(0,y0.max),xaxs="i",yaxs="i",xaxt="n",font=2)
             if (!is.null(threshold)){
               threshold.value <- sort(as.numeric(file$tricubeG))[1+(length(file$tricubeG)-1)*threshold]
@@ -239,15 +239,15 @@ plot_BSA <- function(file,chromlist=NULL,type=c("deltaSNP","Bayesian","ED","Gtes
             axis(side = 1,at=pos.chr,labels=chroms,cex.axis=2,family="serif",font=2)
             par(family="serif",font.lab=2,font.axis=2)
             dev.off()
-            cat("Gtest method line Chart finished \n")
+            cat("Gprime method line Chart finished \n")
             if (!is.null(chromlist)){
-            cat("Plotting G-test method line Chart of selected chromosomes \n")
+            cat("Plotting Gprime method line Chart of selected chromosomes \n")
             for (i in chromlist) {
               png(paste0(file.name," Chromosome ",i,".smooth.png"),height=500,width=430) # 命名
               test <- file[file$CHROM==i,]
               x0 <- test$POS/1000000
               y0 <- test$tricubeG
-              plot(x0,y0,type="l",cex=1.5,cex.axis=1.5,cex.lab=1.5,lwd = 4.5,xlab="Genomic Position",ylab="Tricube smooth of deltaSNP",xlim=c(0,x0[length(x0)]),
+              plot(x0,y0,type="l",cex=1.5,cex.axis=1.5,cex.lab=1.5,lwd = 4.5,xlab="Genomic Position",ylab="Tricube smooth of G-value",xlim=c(0,x0[length(x0)]),
                    ylim=c(0,max(y0)+1),xaxs="i",yaxs="i",font=2)
               title(main = paste0("chromosome ",i),cex.main=2)
               if (!is.null(threshold)){
@@ -263,9 +263,9 @@ plot_BSA <- function(file,chromlist=NULL,type=c("deltaSNP","Bayesian","ED","Gtes
               }
               dev.off()
             }
-              cat("G-test method line Chart of selected chromosomes finished \n")
+              cat("Gprime method line Chart of selected chromosomes finished \n")
             }
-          } else if (type == "deltaSNP"){
+          } else if (type == "DeltaSNP"){
             cat("Plotting deltaSNP method Scatter diagram \n")
             png(paste0(file.name,".point.png"),height=480,width=1080) # 命名
             y <- mht.data[,15]
@@ -310,7 +310,7 @@ plot_BSA <- function(file,chromlist=NULL,type=c("deltaSNP","Bayesian","ED","Gtes
             axis(side = 1,at=pos.chr,labels=chroms,cex.axis=2,family="serif",font=2)
             par(family="serif",font.lab=2,font.axis=2)
             dev.off()
-            cat("deltaSNP method line Chart finished \n")
+            cat("DeltaSNP method line Chart finished \n")
             if (!is.null(chromlist)){
             cat("Plotting DeltaSNP method line Chart of selected chromosomes \n")
             for (i in chromlist) {
