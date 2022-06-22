@@ -37,9 +37,11 @@ or by downloading the repository to your computer, unzipping, and installing the
 
 `devtools::install("PNGseqR")`
 
-or users can download the archive file from “https://github.com/smilejeen/PNGseqR/PNGseqR_0.0.0.9.tar.gz”.
+or users can download the archive file from “https://github.com/smilejeen/PNGseqR/PNGseqR_0.0.0.9.tar.gz”,
 
-install package by 'install.packages("{Your download path}/PNGseqR_0.0.0.9.tar.gz", repos = NULL, type = "source")'
+and installed the package by following command:
+
+`install.packages("{Your PATH}/PNGseqR_0.0.0.9.tar.gz", repos = NULL, type = "source")`
 
 **Note:** Apart from regular package dependencies, there are some Bioconductor tools that we use as well, as such you will be prompted to install support for Bioconductor, if you haven’t already. Because of this, in order to install PNGseqR from github you will be required to install some compiling tools (Rtools for Windowsand Mac, respectively).
 
