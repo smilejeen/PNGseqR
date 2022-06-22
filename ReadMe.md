@@ -37,7 +37,7 @@ or by downloading the repository to your computer, unzipping, and installing the
 
 `devtools::install("PNGseqR")`
 
-or users can download the archive file from “https://github.com/smilejeen/PNGseqR/PNGseqR_0.0.0.9.tar.gz”,
+or users can download the archive file from “https://github.com/smilejeen/PNGseqR/raw/main/PNGseqR_0.0.0.9.tar.gz”,
 
 and installed the package by following command:
 
