@@ -20,7 +20,7 @@ plot_BSA <- function(file,chromlist=NULL,type=c("DeltaSNP","Bayesian","ED","Gpri
         if((type=="DeltaSNP")|(type=="Bayesian")|(type=="ED")|(type=="Gprime")){
           cat("Let's Begin \n")
           chr.length <- c()
-          chroms <- as.character(unique(data_filt$CHROM))
+          chroms <- as.character(unique(file$CHROM))
           file$POS <- as.numeric(file$POS)
           for (i in 1:length(chroms)) {
             dta <- file[file$CHROM==chroms[i],]
