@@ -21,7 +21,8 @@ PNGseqR was developed in R version `3.5.0` and depends on a number of packages f
   - [Use Examples](#use-examples)
       - [Figure 1](#figure-1)
       - [Figure 2](#figure-2)
-
+  - [Supplementary materials](#Pipeline to get genotype file in VCF format)
+  
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
@@ -383,7 +384,6 @@ df_G <- Gprime(file = data_filt,
 			   
 ```
 
-###Plots for four BSA methods,the plot can be found 
 #### Figure 1
 ![](https://github.com/smilejeen/PNGseqR/blob/main/BSA_analysis_plots.jpg)
 Figure 1 Candidate region identified by different algorithms in PNGseqR for maize small kernel mutant. Plots produced by the *plot_BSA()* function with a 5 Mb sliding window: (A-D).The scatter plots exported from the BSA results, the used algorithms are Δ(SNP-index), empirical bayes, ED, and G-test. (E-H) the tricube-smoothed values on the genome. Red line threshold shows the region containing SNPs whose tricube-smoothed values are higher than 99.5% of all values, and blue line threshold shows the SNPs whose P-values are lower than 0.001 based on permutation test.
@@ -490,8 +490,10 @@ BSA_gene$genes_in_region # The genes fall in the candidate region
 BSA_gene$DEGgenes_in_region # The differential expression genes fall in the candidate region
 
 ```
+<p>&nbsp;</p>
+<p>&nbsp;</p>
 
-##Pipeline to get genotype file in VCF format
+## Pipeline to get genotype file in VCF format
 To help users got genotype and reads count files suitable for our package, we offer command line here:
 
 For DNA sequencing data, the pipeline to get genotype data need install software BWA SAMtools Picard GATK baesd on a Linux system 
@@ -583,13 +585,13 @@ java -jar GenomeAnalysisTK.jar -T UnifiedGenotyper -R [Reference.Genome.fa] -I u
 # unique.sort.bulk1.GR.bam and unique.sort.bulk2.GR.bam is the pretreated mapping result of two different pools
 ```
 
-附录S2-4基于转录组数据获取编码基因区域内测序片段数目
 count the reads fall in each gene region by HT-seqcount
 ``` Linux
 htseq-count unique.*.sort.bam -f bam [Reference.Genome.gtf] > *.htseq.RC.txt
 # unique.*.sort.bam is the mapping result after cleaning and sorting
 ```
-
+<p>&nbsp;</p>
+<p>&nbsp;</p>
 
 
 
