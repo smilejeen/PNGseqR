@@ -4,7 +4,7 @@
 
 PNGseqR provides a convenient tool to map genetic loci controlling both quantitative and qualitative trait by performing BSA analysis, which integrates multiple algorithms and methods to indicate the magnitude of genome wide signals and to define the candidate regions, and prioritizes the causal genes through DEG and GO analysis. It takes single nucleotide polymorphism (SNP) markers from Next-generation sequencing (NGS) data in Variant Call Format (VCF) format as the input file, and provides four published BSA algorithms to rapidly define the candidate region through permutation test and fractile quantile. Users can choose the appropriate methods according to their data and experimental design. In addition, it also supports performing DEG analysis and GO analysis in order to prioritize the target gene. Once the analysis is completed, the plots can conveniently be exported.
 
-PNGseqR is still under development and is offered with out any guarantee.
+PNGseqR is still under development and is offered with out any guarantee, our article has also been published，user can download through  https://www.mdpi.com/2223-7747/11/14/1821/pdf for more detailed information
 
 PNGseqR was developed in R version `3.5.0` and depends on a number of packages for various aspects of its implementation 
 
@@ -490,4 +490,121 @@ BSA_gene$genes_in_region # The genes fall in the candidate region
 BSA_gene$DEGgenes_in_region # The differential expression genes fall in the candidate region
 
 ```
+
+##Pipeline to get genotype file in VCF format
+To help users got genotype and reads count files suitable for our package, we offer command line here:
+
+For DNA sequencing data, the pipeline to get genotype data need install software BWA SAMtools Picard GATK baesd on a Linux system 
+
+``` Linux
+First create index for reference genome([Reference.Genome.fa]) by bwa SAMtools and Picard
+
+bwa index [Reference.Genome.fa]
+
+samtools faidx [Reference.Genome.fa]
+
+java -jar picard.jar CreateSequenceDictionary R=[Reference.Genome.fa] O=Reference.Genome.dict
+```
+
+Second mapping the sequencing data to the reference genome by bwa and transform result to Binary format
+
+``` Linux
+bwa mem -t 16 -M [Reference.Genome.fa] *R1.fq.gz *R2.fq.gz > *.sam
+# * R1. fq Gz * R2.fq.gz are the paired-end sequencing data
+
+samtools view -b -S *.sam > *.bam
+```
+
+
+Third The pretreatment for mapping result,including clean sort and adding group information for mapping result, getting unique reads and create index
+
+``` Linux
+java -jar picard.jar CleanSam INPUT=*.bam OUTPUT=*.cleaned.bam
+
+java -jar picard.jar FixMateInformation INPUT=*.cleaned.bam OUTPUT=*.cleaned_fixed.bam SO=coordinate
+
+java -jar picard.jar AddOrReplaceReadGroups INPUT=*.cleaned_fixed.bam OUTPUT=*cleaned_fixed_group.bam LB=WH SO=coordinate RGPL=ILLUMINA PU=barcode SM=WH
+
+samtools index *cleaned_fixed_group.bam
+
+java -jar picard.jar MarkDuplicatesWithMateCigar INPUT=*cleaned_fixed_group.bam OUTPUT=*cleaned_fixed_group_DEDUP.bam M=*cleaned_fixed_group_DEDUP.mx AS=true REMOVE_DUPLICATES=true MINIMUM_DISTANCE=500
+
+samtools index *cleaned_fixed_group_DEDUP.bam
+```
+
+Then,last perform SNP Calling by GATK for each pool
+``` Linux
+java -jar GenomeAnalysisTK.jar -T HaplotypeCaller -R [Reference.Genome.fa] -I *cleaned_fixed_group_DEDUP.bam -o *.gvcf 
+```
+
+At last, combining the SNP Calling result of different pools to obtain the final file for BSA analysis by GATK
+``` Linux
+java -jar GenomeAnalysisTK.jar CombineGVCFs -R [Reference.Genome.fa] -V bulk1.gvcf -V bulk2.gvcf -O bsa.gvcf 
+# bulk1.gvcf and bulk2.gvcf are SNP Calling result of different pool
+
+java -jar GenomeAnalysisTK.jar GenotypeGVCFs -R [Reference.Genome.fa] -V bsa.gvcf -O bsa.vcf  
+```
+
+
+For RNA sequencing data, the pipeline to get genotype data need install software Hisat2 SAMtools Picard GATK baesd on a Linux system 
+
+First,create index for reference genome by hisat2 
+``` Linux
+hisat2/extract_exons.py [Reference.Genome.gtf] > exons.txt 
+hisat2/extract_splice_sites.py [Reference.Genome.gtf] > splicesites.txt
+hisat2/hisat2-build -f [Reference.Genome.fa] --ss splicesites.txt --exon exons.txt [Reference.Genome.index]
+# [Reference.Genome.fa] is reference genome，[Reference.Genome.gtf] is the reference genome annotation file，[Reference.Genome.index] is the created reference genome index file
+```
+
+Second,mapping RNA sequencing data to reference genome by hisat2
+``` Linux
+hisat2 --dta -x [Reference.Genome.index] -1 *R1.fq.gz -2 *R2.fq.gz -S *.sam --known-splicesite-infile splicesites.txt
+# *R1.fq.gz *R2.fq.gz are the paired-end sequencing data
+```
+
+Third,The pretreatment for mapping result,including clean sort and adding group information for mapping result, getting unique reads and create index
+``` Linux
+samtools view -h -q 50 *.sam | samtools view -bS -> unique.*.bam
+
+samtools sort unique.*.bam unique.*.sort
+
+samtools index unique.*.sort.bam 
+
+java -jar picard.jar AddOrReplaceReadGroups.jar I=unique.*.sort.bam O=unique.*.GR.bam RGID=unique.* RGLB=A RGPL=illumina RGPU=nounit RGSM=unique.*
+
+samtools sort unique.*.GR.bam unique.sort.*.GR
+
+samtools index unique.sort.*.GR.bam
+```
+
+At last,perform SNP calling by GATK
+``` Linux
+java -jar GenomeAnalysisTK.jar -T UnifiedGenotyper -R [Reference.Genome.fa] -I unique.sort.bulk1.GR.bam -I unique.sort.bulk2.GR.bam --heterozygosity 0.1 -stand_call_conf 50.0 -stand_emit_conf 20.0 -glm BOTH --num_threads 2 -ploidy 2 -U ALLOW_N_CIGAR_READS -o bsr_snp.vcf
+# unique.sort.bulk1.GR.bam and unique.sort.bulk2.GR.bam is the pretreated mapping result of two different pools
+```
+
+附录S2-4基于转录组数据获取编码基因区域内测序片段数目
+count the reads fall in each gene region by HT-seqcount
+``` Linux
+htseq-count unique.*.sort.bam -f bam [Reference.Genome.gtf] > *.htseq.RC.txt
+# unique.*.sort.bam is the mapping result after cleaning and sorting
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
